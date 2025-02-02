@@ -4,19 +4,21 @@ import (
 	"context"
 
 	"github.com/mikaelchan/hamster/pkg/domain"
+	"github.com/mikaelchan/hamster/pkg/eventstore"
+	"github.com/mikaelchan/hamster/pkg/messaging"
 	"github.com/mikaelchan/hamster/pkg/snapshotstore"
 )
 
 var _ Repository = &snapshotRepository{}
 
 type snapshotRepository struct {
-	eventRepository
+	*eventRepository
 	store snapshotstore.SnapshotStore
 }
 
-func NewSnapshotRepository(eventRepository *eventRepository, snapshotStore snapshotstore.SnapshotStore) Repository {
+func NewSnapshotRepository(store eventstore.EventStore, snapshotStore snapshotstore.SnapshotStore, bus messaging.EventBus) Repository {
 	return &snapshotRepository{
-		eventRepository: *eventRepository,
+		eventRepository: NewEventRepository(store, bus),
 		store:           snapshotStore,
 	}
 }

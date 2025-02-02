@@ -20,6 +20,6 @@ type EventData interface {
 
 // EventStore defines the methods for storing and retrieving events
 type EventStore interface {
-	Append(ctx context.Context, events []domain.Event) error
+	Append(ctx context.Context, streamID domain.ID, events ...domain.Event) error
 	Load(ctx context.Context, streamID domain.ID, from domain.Version) (EventIterator, error)
 }

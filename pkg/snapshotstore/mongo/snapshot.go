@@ -1,6 +1,6 @@
 package mongo
 
-// MongoSnapshot is a concrete implementation of the Snapshot interface
+// Snapshot is a concrete implementation of the Snapshot interface
 type Snapshot struct {
 	StreamIDField string `bson:"stream_id"`
 	TypeField     string `bson:"type"`

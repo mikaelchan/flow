@@ -15,14 +15,14 @@ import (
 // SnapshotStore implements the SnapshotStore interface using MongoDB
 type snapshotStore struct {
 	collection *mongo.Collection
-	factory    serializer.Factory
+	factory    *serializer.Factory
 	policy     snapshotstore.SnapshotPolicy
 }
 
 // NewMongoSnapshotStore creates a new MongoSnapshotStore
-func NewMongoSnapshotStore(db *mongo.Database, collectionName string, factory serializer.Factory, policy snapshotstore.SnapshotPolicy) snapshotstore.SnapshotStore {
+func NewMongoSnapshotStore(db *mongo.Database, factory *serializer.Factory, policy snapshotstore.SnapshotPolicy) snapshotstore.SnapshotStore {
 	return &snapshotStore{
-		collection: db.Collection(collectionName),
+		collection: db.Collection("snapshots"),
 		factory:    factory,
 		policy:     policy,
 	}

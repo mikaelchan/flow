@@ -49,6 +49,9 @@ func (b *EventBus) listen(ctx context.Context) {
 	case <-ctx.Done():
 		return
 	case msg := <-b.pubSub.Channel():
+		if msg == nil {
+			return
+		}
 		b.RLock()
 		handlers, exists := b.subscribers[domain.Type(msg.Channel)]
 		b.RUnlock()
@@ -68,9 +71,6 @@ func (b *EventBus) listen(ctx context.Context) {
 }
 
 // Close closes the Redis connection
-func (b *EventBus) Close(ctx context.Context) error {
-	if err := b.pubSub.Close(); err != nil {
-		return err
-	}
-	return b.client.Close()
+func (b *EventBus) Close() error {
+	return b.pubSub.Close()
 }

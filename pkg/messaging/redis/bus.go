@@ -66,8 +66,3 @@ func (b *Bus) publish(ctx context.Context, typ domain.Type, msg domain.HasType) 
 
 	return nil
 }
-
-// Close closes the Redis connection
-func (b *Bus) close() error {
-	return b.client.Close()
-}

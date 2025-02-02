@@ -5,7 +5,7 @@ type NotificationRouter struct {
 	rules    []RoutingRule
 }
 
-type Severity int
+type Severity uint8
 
 const (
 	Info Severity = iota

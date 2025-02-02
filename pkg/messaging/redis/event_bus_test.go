@@ -9,6 +9,7 @@ import (
 
 	"github.com/mikaelchan/hamster/pkg/domain"
 	redismessaging "github.com/mikaelchan/hamster/pkg/messaging/redis"
+	"github.com/mikaelchan/hamster/pkg/serializer"
 	"github.com/mikaelchan/hamster/pkg/serializer/json"
 )
 
@@ -34,8 +35,9 @@ func TestRedisEventBus_SubscribeAndPublish(t *testing.T) {
 			Client:        redis.NewClient(&redis.Options{Addr: "nas.myhome:6379"}),
 			HandleTimeout: 5 * time.Second,
 		},
+		serializer.GetFactory(),
 	)
-	defer bus.Close(ctx)
+	defer bus.Close()
 
 	// Create a mock event listener
 	listener := &MockEventListener{}

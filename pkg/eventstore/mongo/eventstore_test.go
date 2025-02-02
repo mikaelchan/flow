@@ -64,14 +64,14 @@ func TestMain(m *testing.M) {
 
 func TestEventStore_Append(t *testing.T) {
 	factory := serializer.GetFactory()
-	store, err := mongoes.NewEventStore(context.Background(), db, "events", factory)
+	store, err := mongoes.NewEventStore(context.Background(), db, factory)
 	if err != nil {
 		t.Fatalf("Failed to create event store: %v", err)
 	}
 	root := &MockAggregateRoot{}
 
 	event := &MockEvent{domain.NewBaseEvent("1234", root)}
-	err = store.Append(context.Background(), []domain.Event{event})
+	err = store.Append(context.Background(), event.StreamID(), event)
 	if err != nil {
 		t.Fatalf("Failed to append event: %v", err)
 	}
@@ -85,7 +85,7 @@ func TestEventStore_Append(t *testing.T) {
 
 func TestEventStore_Load(t *testing.T) {
 	factory := serializer.GetFactory()
-	store, err := mongoes.NewEventStore(context.Background(), db, "events", factory)
+	store, err := mongoes.NewEventStore(context.Background(), db, factory)
 	if err != nil {
 		t.Fatalf("Failed to create event store: %v", err)
 	}

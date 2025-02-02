@@ -46,6 +46,9 @@ func (b *CommandBus) listen(ctx context.Context) {
 	case <-ctx.Done():
 		return
 	case msg := <-b.pubSub.Channel():
+		if msg == nil {
+			return
+		}
 		b.RLock()
 		listener, exists := b.handlers[domain.Type(msg.Channel)]
 		b.RUnlock()
@@ -64,9 +67,6 @@ func (b *CommandBus) listen(ctx context.Context) {
 	}
 }
 
-func (b *CommandBus) Close(ctx context.Context) error {
-	if err := b.pubSub.Close(); err != nil {
-		return err
-	}
-	return b.close()
+func (b *CommandBus) Close() error {
+	return b.pubSub.Close()
 }

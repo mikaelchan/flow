@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,9 +21,9 @@ type EventStore struct {
 }
 
 // NewEventStore creates a new MongoEventStore and initializes indexes
-func NewEventStore(ctx context.Context, db *mongo.Database, collectionName string, factory *serializer.Factory) (*EventStore, error) {
+func NewEventStore(ctx context.Context, db *mongo.Database, factory *serializer.Factory) (*EventStore, error) {
 	store := &EventStore{
-		collection: db.Collection(collectionName),
+		collection: db.Collection("events"),
 		factory:    factory,
 	}
 
@@ -57,9 +56,9 @@ func NewEventStore(ctx context.Context, db *mongo.Database, collectionName strin
 }
 
 // Append adds events to the MongoDB collection
-func (s *EventStore) Append(ctx context.Context, events []domain.Event) error {
+func (s *EventStore) Append(ctx context.Context, streamID domain.ID, events ...domain.Event) error {
 	if len(events) == 0 {
-		return errors.New("no events to append")
+		return eventstore.ErrNoEvents
 	}
 
 	var documents []interface{}

@@ -25,7 +25,7 @@ func (r *eventRepository) Save(ctx context.Context, root domain.AggregateRoot) e
 	events := root.UncommittedEvents()
 
 	// Save these events to the event store
-	if err := r.store.Append(ctx, events); err != nil {
+	if err := r.store.Append(ctx, root.ID(), events...); err != nil {
 		return err
 	}
 
