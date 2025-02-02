@@ -5,6 +5,7 @@ import (
 
 	"github.com/mikaelchan/hamster/internal/domain/shared"
 	"github.com/mikaelchan/hamster/pkg/domain"
+	"github.com/mikaelchan/hamster/pkg/messaging"
 	"github.com/mikaelchan/hamster/pkg/repository"
 )
 
@@ -58,4 +59,8 @@ func OnCreateLibrary(idProvider domain.IDProvider, readModel ReadModel, reposito
 
 		return repository.Save(ctx, library)
 	}
+}
+
+func Register(ctx context.Context, bus messaging.CommandBus, idProvider domain.IDProvider, readModel ReadModel, repository repository.Repository) {
+	bus.Register(ctx, CreateLibraryContract, OnCreateLibrary(idProvider, readModel, repository))
 }

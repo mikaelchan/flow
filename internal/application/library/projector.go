@@ -27,7 +27,10 @@ func (p *projector) Project(ctx context.Context, event domain.Event) error {
 }
 
 func (p *projector) Subscribe(ctx context.Context, bus messaging.EventBus) {
-	bus.Subscribe(ctx, "library", func(ctx context.Context, event domain.Event) error {
+	listener := func(ctx context.Context, event domain.Event) error {
 		return p.Project(ctx, event)
-	})
+	}
+	bus.Subscribe(ctx, library.CreatedEventTopic, listener)
+	// bus.Subscribe(ctx, "library-updated", listener)
+	// bus.Subscribe(ctx, "library-deleted", listener)
 }

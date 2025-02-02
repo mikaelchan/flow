@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	CreatedEventType domain.Type = "library.created"
+	CreatedEventTopic domain.Type = "library.created"
 )
 
 type Created struct {
@@ -24,5 +24,5 @@ type Created struct {
 }
 
 func (e *Created) Type() domain.Type {
-	return CreatedEventType
+	return CreatedEventTopic
 }

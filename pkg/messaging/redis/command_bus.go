@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/redis/go-redis/v9"
 
@@ -17,6 +18,7 @@ type CommandBus struct {
 	*Bus
 	handlers map[domain.Type]domain.CommandHandler
 	pubSub   *redis.PubSub
+	sync.RWMutex
 }
 
 func NewCommandBus(ctx context.Context, cfg Config, factory *serializer.Factory) messaging.CommandBus {

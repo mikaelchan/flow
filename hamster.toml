@@ -1,14 +1,15 @@
 [app]
-name = "hamster"
+host = "0.0.0.0"
+port = 4267
 
-[postgres]
+[service.postgre]
 host = "nas.myhome"
 port = 5433
 username = "user"
 password = "password"
 database = "hamster"
 
-[redis]
+[service.redis]
 host = "nas.myhome"
 port = 6379
 username = "user"

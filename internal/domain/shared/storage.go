@@ -22,28 +22,28 @@ func (sl StorageLocation) IsValid() bool {
 	return sl.Path != "" && sl.StorageType.IsValid()
 }
 
-func (sl StorageLocation) IsWritable() (isWritable bool, err error) {
+func (sl StorageLocation) IsWritable() (bool, error) {
 	if sl.StorageType == Local {
-		isWritable = false
 		info, err := os.Stat(sl.Path)
 		if err != nil {
-			return isWritable, err
+			return false, err
 		}
 		if !info.IsDir() {
-			return isWritable, nil
+			return false, nil
 		}
 		if info.Mode().Perm()&(1<<(uint(7))) == 0 {
-			return isWritable, nil
+			return false, nil
 		}
 		var stat syscall.Stat_t
 		if err := syscall.Stat(sl.Path, &stat); err != nil {
-			return isWritable, err
+			return false, err
 		}
 		if stat.Uid != uint32(os.Getuid()) {
-			return isWritable, nil
+			return false, nil
 		}
+
 	}
-	return isWritable, nil
+	return true, nil
 }
 
 func (sl StorageLocation) FreeSpace() (uint64, error) {

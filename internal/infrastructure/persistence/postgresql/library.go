@@ -13,15 +13,15 @@ import (
 )
 
 type Library struct {
-	ID                string            `gorm:"primaryKey"`
-	Name              string            `gorm:"not null;unique;index:idx_libraries_name"`
-	MediaType         uint8             `gorm:"not null"`
-	Location          string            `gorm:"not null;index:idx_libraries_location"`
-	QualityPreference map[string]string `gorm:"not null;serializer:json"`
-	NamingTemplate    string            `gorm:"not null"`
-	Status            uint8             `gorm:"not null"`
-	CreatedAt         time.Time         `gorm:"not null"`
-	UpdatedAt         time.Time         `gorm:"not null"`
+	ID                string                   `gorm:"primaryKey"`
+	Name              string                   `gorm:"not null;unique;index:idx_libraries_name"`
+	MediaType         uint8                    `gorm:"not null"`
+	Location          string                   `gorm:"not null;index:idx_libraries_location"`
+	QualityPreference shared.QualityPreference `gorm:"not null;serializer:json;type:jsonb"`
+	NamingTemplate    string                   `gorm:"not null"`
+	Status            uint8                    `gorm:"not null"`
+	CreatedAt         time.Time                `gorm:"not null"`
+	UpdatedAt         time.Time                `gorm:"not null"`
 }
 
 func (Library) TableName() string {

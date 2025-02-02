@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/redis/go-redis/v9"
 
@@ -17,6 +18,7 @@ type EventBus struct {
 	*Bus
 	subscribers map[domain.Type][]domain.EventListener
 	pubSub      *redis.PubSub
+	sync.RWMutex
 }
 
 func NewEventBus(ctx context.Context, cfg Config, factory *serializer.Factory) messaging.EventBus {

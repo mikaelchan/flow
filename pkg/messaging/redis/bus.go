@@ -3,12 +3,12 @@ package redis
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 
 	"github.com/mikaelchan/hamster/pkg/domain"
+	"github.com/mikaelchan/hamster/pkg/logger"
 	"github.com/mikaelchan/hamster/pkg/serializer"
 )
 
@@ -17,7 +17,6 @@ type Bus struct {
 	client        *redis.Client
 	handleTimeout time.Duration
 	factory       *serializer.Factory
-	sync.RWMutex
 }
 
 func NewBus(config Config, factory *serializer.Factory) *Bus {
@@ -44,11 +43,12 @@ func (b *Bus) processMessage(ctx context.Context, process func(context.Context) 
 
 	select {
 	case err := <-errCh:
+		logger.Debugf("message handling completed")
 		if err != nil {
-			fmt.Printf("error handling message: %v\n", err)
+			logger.Errorf("message handling failed: %v", err)
 		}
 	case <-ctx.Done():
-		fmt.Printf("message handling timed out after %v\n", b.handleTimeout)
+		logger.Errorf("message handling timed out after %v\n", b.handleTimeout)
 	}
 }
 
@@ -63,6 +63,7 @@ func (b *Bus) publish(ctx context.Context, typ domain.Type, msg domain.HasType) 
 	if err != nil {
 		return fmt.Errorf("publish message: %w", err)
 	}
+	logger.Infof("published message to %s", typ.String())
 
 	return nil
 }

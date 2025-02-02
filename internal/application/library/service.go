@@ -6,6 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/redis/go-redis/v9"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"github.com/mikaelchan/hamster/internal/application"
 	"github.com/mikaelchan/hamster/internal/domain/library"
 	"github.com/mikaelchan/hamster/internal/infrastructure/idprovider/uuid"
 	postgresql_readmodel "github.com/mikaelchan/hamster/internal/infrastructure/persistence/postgresql"
@@ -19,28 +24,25 @@ import (
 	"github.com/mikaelchan/hamster/pkg/serializer"
 	"github.com/mikaelchan/hamster/pkg/snapshotstore"
 	postgresql_snapshotstore "github.com/mikaelchan/hamster/pkg/snapshotstore/postgresql"
-	"github.com/redis/go-redis/v9"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 type Service struct {
-	db          *sql.DB
-	redisClient *redis.Client
+	DB          *sql.DB
+	RedisClient *redis.Client
 
-	readModel  library.ReadModel
-	repository repository.Repository
-	idProvider domain.IDProvider
-	projector  projection.Projector
-	commandBus messaging.CommandBus
-	eventBus   messaging.EventBus
+	ReadModel  library.ReadModel
+	Repository repository.Repository
+	IDProvider domain.IDProvider
+	Projector  projection.Projector
+	CommandBus messaging.CommandBus
+	EventBus   messaging.EventBus
 }
 
-func NewService(ctx context.Context, config Config) *Service {
+func NewService(ctx context.Context, config application.ServiceConfig) *Service {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%d", config.Redis.Host, config.Redis.Port),
 	})
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.Postgres.Host, config.Postgres.Port, config.Postgres.Username, config.Postgres.Password, config.Postgres.Database)
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.Postgre.Host, config.Postgre.Port, config.Postgre.Username, config.Postgre.Password, config.Postgre.Database)
 	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -75,21 +77,23 @@ func NewService(ctx context.Context, config Config) *Service {
 	readModel := postgresql_readmodel.NewLibraryReadModel(gormDB)
 	projector := NewProjector(readModel)
 	projector.Subscribe(ctx, eb)
-	return &Service{db: db, redisClient: redisClient, idProvider: idProvider, readModel: readModel, repository: repo, projector: projector, commandBus: cb, eventBus: eb}
+	library.Register(ctx, cb, idProvider, readModel, repo)
+	eb.Subscribe(ctx, library.CreatedEventTopic, WhenLibraryCreated(cb))
+	return &Service{DB: db, RedisClient: redisClient, IDProvider: idProvider, ReadModel: readModel, Repository: repo, Projector: projector, CommandBus: cb, EventBus: eb}
 }
 
 func (s *Service) Close() error {
 	var firstErr error
-	if err := s.commandBus.Close(); err != nil {
+	if err := s.CommandBus.Close(); err != nil {
 		firstErr = err
 	}
-	if err := s.eventBus.Close(); err != nil && firstErr == nil {
+	if err := s.EventBus.Close(); err != nil && firstErr == nil {
 		firstErr = err
 	}
-	if err := s.redisClient.Close(); err != nil && firstErr == nil {
+	if err := s.RedisClient.Close(); err != nil && firstErr == nil {
 		firstErr = err
 	}
-	if err := s.db.Close(); err != nil && firstErr == nil {
+	if err := s.DB.Close(); err != nil && firstErr == nil {
 		firstErr = err
 	}
 	return firstErr

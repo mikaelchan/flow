@@ -43,7 +43,7 @@ func TestSaveAndLoad(t *testing.T) {
 			Location: shared.StorageLocation{
 				Path: "test",
 			},
-			QualityPreference: make(map[string]string),
+			QualityPreference: shared.QualityPreference{},
 			NamingTemplate:    "test",
 			Status:            library.Active,
 		}

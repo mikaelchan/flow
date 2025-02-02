@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	CreateLibraryCommandType domain.Type = "create-library"
+	CreateLibraryContract domain.Type = "create-library"
 )
 
 type CreateLibrary struct {
@@ -18,7 +18,7 @@ type CreateLibrary struct {
 }
 
 func (cmd *CreateLibrary) Type() domain.Type {
-	return CreateLibraryCommandType
+	return CreateLibraryContract
 }
 
 func (cmd *CreateLibrary) Validate() error {

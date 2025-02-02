@@ -2,6 +2,9 @@ package logger
 
 import (
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
+	"github.com/mikaelchan/hamster/pkg/env"
 )
 
 var (
@@ -10,8 +13,43 @@ var (
 )
 
 func init() {
-	logger, _ = zap.NewProduction()
+	level := zap.DebugLevel
+	encoding := "console"
+	development := true
+	if env.IsRelease() {
+		level = zap.InfoLevel
+		encoding = "json"
+		development = false
+	}
+	config := zap.Config{
+		Level:             zap.NewAtomicLevelAt(level),
+		Development:       development,
+		Encoding:          encoding,
+		DisableStacktrace: true,
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "ts",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			CallerKey:      "caller",
+			FunctionKey:    zapcore.OmitKey,
+			MessageKey:     "msg",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.LowercaseLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stderr"},
+	}
+
+	logger, _ = config.Build()
 	sugar = logger.Sugar()
+}
+
+func Debugf(format string, v ...any) {
+	sugar.Debugf(format, v...)
 }
 
 func Infof(format string, v ...any) {

@@ -19,4 +19,11 @@ func (mt MediaType) String() string {
 	return [...]string{"movie", "tvshow", "anime", "music", "adult", "book"}[mt]
 }
 
-type QualityPreference map[string]string
+func FromString(s string) (MediaType, error) {
+	for i, v := range [...]string{"movie", "tvshow", "anime", "music", "adult", "book"} {
+		if v == s {
+			return MediaType(i), nil
+		}
+	}
+	return 0, ErrInvalidMediaType
+}
