@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/mikaelchan/hamster/pkg/domain"
+	"github.com/mikaelchan/hamster/pkg/logger"
 	"github.com/mikaelchan/hamster/pkg/serializer"
 	"github.com/mikaelchan/hamster/pkg/snapshotstore"
 	"gorm.io/gorm"
@@ -16,6 +17,9 @@ type snapshotStore struct {
 }
 
 func NewPostgresSnapshotStore(db *gorm.DB, factory *serializer.Factory, policy snapshotstore.SnapshotPolicy) snapshotstore.SnapshotStore {
+	if err := db.AutoMigrate(&Snapshot{}); err != nil {
+		logger.Fatalf("Failed to migrate snapshot: %v", err)
+	}
 	return &snapshotStore{
 		db:      db,
 		factory: factory,

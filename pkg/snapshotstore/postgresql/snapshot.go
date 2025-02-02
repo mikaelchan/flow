@@ -2,7 +2,7 @@ package postgresql
 
 type Snapshot struct {
 	StreamIDField string `gorm:"column:stream_id;primaryKey"`
-	TypeField     string `gorm:"column:type"`
+	TypeField     string `gorm:"column:type;index:idx_snapshots_type"`
 	VersionField  uint64 `gorm:"column:version"`
 	StateField    []byte `gorm:"column:state"`
 }

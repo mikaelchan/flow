@@ -8,14 +8,15 @@ import (
 	"github.com/mikaelchan/hamster/internal/domain/library"
 	"github.com/mikaelchan/hamster/internal/domain/shared"
 	"github.com/mikaelchan/hamster/pkg/domain"
+	"github.com/mikaelchan/hamster/pkg/logger"
 	"gorm.io/gorm"
 )
 
 type Library struct {
 	ID                string            `gorm:"primaryKey"`
-	Name              string            `gorm:"not null;unique"`
+	Name              string            `gorm:"not null;unique;index:idx_libraries_name"`
 	MediaType         uint8             `gorm:"not null"`
-	Location          string            `gorm:"not null"`
+	Location          string            `gorm:"not null;index:idx_libraries_location"`
 	QualityPreference map[string]string `gorm:"not null;serializer:json"`
 	NamingTemplate    string            `gorm:"not null"`
 	Status            uint8             `gorm:"not null"`
@@ -32,6 +33,9 @@ type LibraryReadModel struct {
 }
 
 func NewLibraryReadModel(db *gorm.DB) library.ReadModel {
+	if err := db.AutoMigrate(&Library{}); err != nil {
+		logger.Fatalf("Failed to migrate library: %v", err)
+	}
 	return &LibraryReadModel{db: db}
 }
 

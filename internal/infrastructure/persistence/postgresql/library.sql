@@ -11,3 +11,4 @@ CREATE TABLE IF NOT EXISTS libraries (
 );
 
 CREATE INDEX IF NOT EXISTS idx_libraries_name ON libraries (name);
+CREATE INDEX IF NOT EXISTS idx_libraries_location ON libraries (location);

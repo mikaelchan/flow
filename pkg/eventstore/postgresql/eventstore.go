@@ -5,6 +5,7 @@ import (
 
 	"github.com/mikaelchan/hamster/pkg/domain"
 	"github.com/mikaelchan/hamster/pkg/eventstore"
+	"github.com/mikaelchan/hamster/pkg/logger"
 	"github.com/mikaelchan/hamster/pkg/serializer"
 	"gorm.io/gorm"
 )
@@ -15,6 +16,9 @@ type EventStore struct {
 }
 
 func NewEventStore(db *gorm.DB, factory *serializer.Factory) eventstore.EventStore {
+	if err := db.AutoMigrate(&EventData{}); err != nil {
+		logger.Fatalf("Failed to migrate event data: %v", err)
+	}
 	return &EventStore{
 		db:      db,
 		factory: factory,
